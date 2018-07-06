@@ -47,19 +47,19 @@
                         board[selectedPieceX][selectedPieceY].css("background-color", "yellow");
 
                         if (name === 'WhitePawn.png') {
-                            validMoves(positions, selectedPieceX, selectedPieceY, 'A');
+                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'A');
                         }
 
                         else if (name === 'WhiteKing.png') {
-                            validMoves(positions, selectedPieceX, selectedPieceY, 'B');
+                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'B');
                         }
 
                         else if (name === 'BlackPawn.png') {
-                            validMoves(positions, selectedPieceX, selectedPieceY, 'C');
+                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'C');
                         }
 
                         else if (name === 'BlackKing.png') {
-                            validMoves(positions, selectedPieceX, selectedPieceY, 'D');
+                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'D');
                         }
                     }
                 });
@@ -130,7 +130,7 @@
                 else return 'none';
             }
 
-            function validMoves(positions, x, y, c) {
+            function showValidMoves(positions, x, y, c) {
 
                 if (!validCoordinates(x, y)) {
                     return false;
