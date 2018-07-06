@@ -100,8 +100,8 @@
                         left: y * 64 + 13, top: x * 64 + 13
                     }).css('background-color', 'transparent');
                     selectedPiece = null; selectedPieceX = null; selectedPieceY = null;
-                    for(let i = 0; i < 8; i++) {
-                        for(let j = 0; j < 8; j++) {
+                    for(var i = 0; i < 8; i++) {
+                        for(var j = 0; j < 8; j++) {
                             if((i + j) % 2 === 0) ctx.fillStyle = "#ABCDEF";
                             else ctx.fillStyle = "blue";
                             ctx.fillRect(i * 64, j * 64, 64, 64);
@@ -111,8 +111,8 @@
             });
 
             //Crtanje ploce
-            for(let i = 0; i < 8; i++) {
-                for(let j = 0; j < 8; j++) {
+            for(var i = 0; i < 8; i++) {
+                for(var j = 0; j < 8; j++) {
                     if((i + j) % 2 === 0) ctx.fillStyle = "#ABCDEF";
                     else ctx.fillStyle = "blue";
                     ctx.fillRect(i * 64, j * 64, 64, 64);
@@ -120,14 +120,14 @@
             }
 
             //Crtanje figurica
-            let board = boardString.split(';');
-            for(let i = 0; i < board.length; i++){
+            var board = boardString.split(';');
+            for(var i = 0; i < board.length; i++){
                 board[i] = board[i].split('');
             }
-            for(let i = 0; i < board.length; i++) {
-                for(let j = 0; j < board[i].length; j++) {
+            for(var i = 0; i < board.length; i++) {
+                for(var j = 0; j < board[i].length; j++) {
                     if(board[i][j] === 'B' || board[i][j] === 'W') {
-                        let img;
+                        var img;
                         if(board[i][j] === 'W') {
                             img = $('<img src="WhitePawn.png" alt="white_pawn"/>');
                         }
@@ -140,8 +140,8 @@
                             }).on('mousedown', function(event) {
                                 if(selectedPiece !== null) {
                                     selectedPiece.css('background-color', 'transparent');
-                                    for(let i = 0; i < 8; i++) {
-                                        for(let j = 0; j < 8; j++) {
+                                    for(var i = 0; i < 8; i++) {
+                                        for(var j = 0; j < 8; j++) {
                                             if((i + j) % 2 === 0) ctx.fillStyle = "#ABCDEF";
                                             else ctx.fillStyle = "blue";
                                             ctx.fillRect(i * 64, j * 64, 64, 64);
