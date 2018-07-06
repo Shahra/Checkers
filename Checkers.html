@@ -4,54 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Checkers</title>
+    <link rel="stylesheet" type="text/css" href="checkersSylesheet.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <style>
-        img {
-            position: absolute;
-            -moz-user-select: none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-
-        table{
-            border-collapse: collapse;
-            border-spacing: 0;
-            border: 5px solid black;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        td {
-            position: relative;
-            vertical-align: top;
-            width: 64px;
-            height: 64px;
-            border: 1px solid black;
-        }
-    </style>
 </head>
 <body>
     <table id = "table"></table>
-
     <script>
         $(document).ready(function() {
             var positions = 'ECECECEC;EEEEEEEE;EDEDEDED;EEEEEEEE;EEEEEEEE;BEBEBEBE;EEEEEEEE;AEAEAEAE';
             positions = parsePositions(positions);
             var selectedPieceX = null, selectedPieceY = null;
-
-            var board = boardInit();
-            drawBoard(board, positions);
+            var board = boardInit(); drawBoard(board, positions);
 
             $("body")
                 .on("click", "td", function () {
+                    //coordinates are saved in the name of the td, example: <td name="00"></td> is the cell 00.
                     var coordinates = $(this).attr('name');
                     var x = Number(coordinates[0]), y = Number(coordinates[1]);
 
+                    //if we click on the empty cell, we are trying to make a move
                     if ($(this).html() === '') {
-                        console.log('empty');
                         if (selectedPieceX !== null) {
                             //try to move piece from position (selectedPieceX, selectedPieceY) -> (x, y)
                             //TODO ajax request
@@ -62,23 +34,30 @@
                             drawBoard(board, positions);
                         }
                     }
+
+                    //else, we are selecting a piece
                     else {
                         var name = $(this).children().eq(0).attr('src');
-                        selectedPieceX = x;
-                        selectedPieceY = y;
+                        selectedPieceX = x; selectedPieceY = y;
+
+                        //we remove previously selected tiles on the board
                         resetBoardColors(board);
 
+                        //and we colour the selected piece
                         board[selectedPieceX][selectedPieceY].css("background-color", "yellow");
 
                         if (name === 'WhitePawn.png') {
                             validMoves(positions, selectedPieceX, selectedPieceY, 'A');
                         }
+
                         else if (name === 'WhiteKing.png') {
                             validMoves(positions, selectedPieceX, selectedPieceY, 'B');
                         }
+
                         else if (name === 'BlackPawn.png') {
                             validMoves(positions, selectedPieceX, selectedPieceY, 'C');
                         }
+
                         else if (name === 'BlackKing.png') {
                             validMoves(positions, selectedPieceX, selectedPieceY, 'D');
                         }
@@ -91,7 +70,6 @@
                     matrix[i] = matrix[i].split('');
                 }
                 return matrix;
-
             }
 
             function boardInit() {
@@ -149,10 +127,8 @@
             function pieceColour(c) {
                 if (c === 'A' || c === 'B') return 'white';
                 else if (c === 'C' || c === 'D') return 'black';
-                else
-                    return 'none';
+                else return 'none';
             }
-
 
             function validMoves(positions, x, y, c) {
 
@@ -250,9 +226,6 @@
                         }
                     }
                 }
-
-
-
             }
         });
     </script>
