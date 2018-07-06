@@ -27,7 +27,7 @@
 
     <script>
         $( document ).ready( function() {
-            var boardString = 'ABABABAB;BABABABA;ABABABAB;AAAAAAAA;AAAAAAAA;WAWAWAWA;AWAWAWAW;WAWAWAWA';
+            var boardString = 'ABABABAB;BABABABA;ABABABAB;AAAAAAAA;AAAAAAAA;WAWAWAWA;AWAWAWAW;WAWAWAWA', board;
             var cnv = $("#canvas").get(0); var ctx = cnv.getContext("2d"); var rect = canvas.getBoundingClientRect();
             var selectedPiece = null, selectedPieceX = null, selectedPieceY = null;
             var listOfValidMoves, pieceWidth = 64, pieceOffset = 13;
@@ -71,8 +71,8 @@
                                         drawBoard(ctx);
                                     }
                                     selectedPiece = $(this).css('background-color', 'yellow');
-                                    selectedPieceX = ($(this).position().top - pieceOffset) / 64;
-                                    selectedPieceY = ($(this).position().left - pieceOffset) / 64;
+                                    selectedPieceX = Math.round(($(this).position().top - pieceOffset) / 64);
+                                    selectedPieceY = Math.round(($(this).position().left - pieceOffset) / 64);
                                     validMoves(ctx, board, selectedPieceX, selectedPieceY, board[selectedPieceX][selectedPieceY], []);
                                 })
                                 .css({
