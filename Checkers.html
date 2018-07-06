@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Checkers</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
@@ -12,186 +13,249 @@
             user-select: none;
         }
 
-        #canvas, img {
+        img{
             position: absolute;
         }
-        #canvas {
+
+        table{
+            border-collapse: collapse;
+            border-spacing: 0;
             border: 5px solid black;
-            background-size: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        td {
+            position: relative;
+            vertical-align: top;
+            width: 64px;
+            height: 64px;
+            border: 1px solid black;
         }
     </style>
 </head>
 <body>
-
-    <canvas id="canvas" width="512" height="512">Canvas not supported!</canvas>
+    <table id = "table"></table>
 
     <script>
-        $( document ).ready( function() {
-            var boardString = 'ABABABAB;BABABABA;ABABABAB;AAAAAAAA;AAAAAAAA;WAWAWAWA;AWAWAWAW;WAWAWAWA', board;
-            var cnv = $("#canvas").get(0); var ctx = cnv.getContext("2d"); var rect = canvas.getBoundingClientRect();
-            var selectedPiece = null, selectedPieceX = null, selectedPieceY = null;
-            var listOfValidMoves, pieceWidth = 64, pieceOffset = 13;
+        $(document).ready(function() {
+            var positions = 'ECECECEC;EEEEEEEE;EDEDEDED;EEEEEEEE;EEEEEEEE;BEBEBEBE;EEEEEEEE;AEAEAEAE';
+            positions = parsePositions(positions);
+            var selectedPieceX = null, selectedPieceY = null;
 
-            function getBoard(boardString) {
-                var board = boardString.split(';');
-                for(var i = 0; i < board.length; i++){
-                    board[i] = board[i].split('');
+            var board = boardInit();
+            drawBoard(board, positions);
+
+            $("body")
+                .on("click", "td", function () {
+                    var coordinates = $(this).attr('name');
+                    var x = Number(coordinates[0]), y = Number(coordinates[1]);
+
+                    if ($(this).html() === '') {
+                        console.log('empty');
+                        if (selectedPieceX !== null) {
+                            //try to move piece from position (selectedPieceX, selectedPieceY) -> (x, y)
+                            //TODO ajax request
+                            positions[x][y] = positions[selectedPieceX][selectedPieceY];
+                            positions[selectedPieceX][selectedPieceY] = 'E';
+                            selectedPieceX = null;
+                            selectedPieceY = null;
+                            drawBoard(board, positions);
+                        }
+                    }
+                    else {
+                        var name = $(this).children().eq(0).attr('src');
+                        selectedPieceX = x;
+                        selectedPieceY = y;
+                        resetBoardColors(board);
+
+                        board[selectedPieceX][selectedPieceY].css("background-color", "yellow");
+
+                        if (name === 'WhitePawn.png') {
+                            validMoves(positions, selectedPieceX, selectedPieceY, 'A');
+                        }
+                        else if (name === 'WhiteKing.png') {
+                            validMoves(positions, selectedPieceX, selectedPieceY, 'B');
+                        }
+                        else if (name === 'BlackPawn.png') {
+                            validMoves(positions, selectedPieceX, selectedPieceY, 'C');
+                        }
+                        else if (name === 'BlackKing.png') {
+                            validMoves(positions, selectedPieceX, selectedPieceY, 'D');
+                        }
+                    }
+                });
+
+            function parsePositions(positions) {
+                var matrix = positions.split(';');
+                for (var i = 0; i < matrix.length; i++) {
+                    matrix[i] = matrix[i].split('');
+                }
+                return matrix;
+
+            }
+
+            function boardInit() {
+                var table = $("#table");
+                var board = [];
+                for (var i = 0; i < 8; i++) {
+                    var row = $("<tr></tr>");
+                    board[i] = [];
+                    for (var j = 0; j < 8; j++) {
+                        board[i][j] = $('<td name="' + i + j + '"></td>');
+                        row.append(board[i][j]);
+                    }
+                    table.append(row);
                 }
                 return board;
             }
-            function drawBoard(ctx) {
-                for(var i = 0; i < 8; i++) {
-                    for(var j = 0; j < 8; j++) {
-                        if((i + j) % 2 === 0) ctx.fillStyle = "#ABCDEF";
-                        else ctx.fillStyle = "blue";
-                        ctx.fillRect(i * 64, j * 64, 64, 64);
+
+            function resetBoardColors(board) {
+                for (var i = 0; i < 8; i++) {
+                    for (var j = 0; j < 8; j++) {
+                        if ((i + j) % 2 === 1) board[i][j].css("background-color", "blue");
+                        else board[i][j].css("background-color", "#abcdef");
                     }
                 }
             }
 
-            function initializeBoard(board, ctx) {
-                //Draw board.
-                drawBoard(ctx);
-
-                //Initialize pieces.
-                for(var i = 0; i < board.length; i++) {
-                    for(var j = 0; j < board[i].length; j++) {
-                        if(board[i][j] === 'B' || board[i][j] === 'W') {
-                            var img;
-                            if(board[i][j] === 'W') {
-                                img = $('<img src="WhitePawn.png" alt="white_pawn"/>');
-                            }
-                            else if(board[i][j] === 'B') {
-                                img = $('<img src="BlackKing.png" alt="black_pawn"/>');
-                            }
-                            img
-                                .on('mousedown', function() {
-                                    if(selectedPiece !== null) {
-                                        selectedPiece.css('background-color', 'transparent');
-                                        drawBoard(ctx);
-                                    }
-                                    selectedPiece = $(this).css('background-color', 'yellow');
-                                    selectedPieceX = Math.round(($(this).position().top - pieceOffset) / 64);
-                                    selectedPieceY = Math.round(($(this).position().left - pieceOffset) / 64);
-                                    validMoves(ctx, board, selectedPieceX, selectedPieceY, board[selectedPieceX][selectedPieceY], []);
-                                })
-                                .css({
-                                    top: i * pieceWidth + pieceOffset, left: j * pieceWidth + pieceOffset
-                                });
-                            $('body').append(img);
+            function drawBoard(board, positions) {
+                resetBoardColors(board);
+                for (var i = 0; i < positions.length; i++) {
+                    for (var j = 0; j < positions[i].length; j++) {
+                        if (positions[i][j] === 'A') {
+                            board[i][j].html('<img src="WhitePawn.png" alt="white_pawn"/>');
+                        }
+                        else if (positions[i][j] === 'B') {
+                            board[i][j].html('<img src="WhiteKing.png" alt="white_king"/>');
+                        }
+                        else if (positions[i][j] === 'C') {
+                            board[i][j].html('<img src="BlackPawn.png" alt="black_pawn"/>');
+                        }
+                        else if (positions[i][j] === 'D') {
+                            board[i][j].html('<img src="BlackKing.png" alt="black_king"/>');
+                        }
+                        else if (positions[i][j] === 'E') {
+                            board[i][j].html('');
                         }
                     }
                 }
             }
 
             function validCoordinates(x, y) {
-                if(x >= 0 && x < 8 && y >= 0 && y < 8) return true;
+                if (x >= 0 && x < 8 && y >= 0 && y < 8) return true;
                 else return false;
             }
-            function validMoves(ctx, board, x, y, c, eaten) {
-                listOfValidMoves = [];
 
-                if(!validCoordinates(x, y)) {
+            function pieceColour(c) {
+                if (c === 'A' || c === 'B') return 'white';
+                else if (c === 'C' || c === 'D') return 'black';
+                else
+                    return 'none';
+            }
+
+
+            function validMoves(positions, x, y, c) {
+
+                if (!validCoordinates(x, y)) {
                     return false;
                 }
 
-                if(validCoordinates(x - 1, y - 1) && c === 'W') {
-                    if(board[x - 1][y - 1] === 'A' && eaten.length === 0) {
-                        ctx.fillStyle = "lime";
-                        ctx.fillRect((y - 1) * 64, (x - 1) * 64, 64, 64);
-                        listOfValidMoves.push([x - 1, y - 1, []])
+                if (validCoordinates(x - 1, y - 1) && pieceColour(c) === 'white') {
+                    if (positions[x - 1][y - 1] === 'E') {
+                        board[x - 1][y - 1].css("background-color", "lime");
                     }
-                    else if(board[x - 1][y - 1] === 'B') {
-                        if(validCoordinates(x - 2, y - 2) && board[x - 2][y - 2] === 'A') {
-                            ctx.fillStyle = "lime";
-                            ctx.fillRect((y - 2) * 64, (x - 2) * 64, 64, 64);
-                            eaten.push([x - 1, y - 1]);
-                            validMoves(ctx, board, x - 2, y - 2, c, eaten);
-                            listOfValidMoves.push([x - 2, y - 2, eaten])
+                    else if (pieceColour(positions[x - 1][y - 1]) === 'black') {
+                        if (validCoordinates(x - 2, y - 2) && positions[x - 2][y - 2] === 'E') {
+                            board[x - 2][y - 2].css("background-color", "lime");
                         }
                     }
                 }
 
-                if(validCoordinates(x - 1, y + 1) && c === 'W') {
-                    if(board[x - 1][y + 1] === 'A' && eaten.length === 0) {
-                        ctx.fillStyle = "lime";
-                        ctx.fillRect((y + 1) * 64, (x - 1) * 64, 64, 64);
-                        listOfValidMoves.push([x - 1, y + 1, []])
+                if (validCoordinates(x - 1, y + 1) && pieceColour(c) === 'white') {
+                    if (positions[x - 1][y + 1] === 'E') {
+                        board[x - 1][y + 1].css("background-color", "lime");
                     }
-                    else if(board[x - 1][y + 1] === 'B') {
-                        if(validCoordinates(x - 2, y + 2) && board[x - 2][y + 2] === 'A'){
-                            ctx.fillStyle = "lime";
-                            ctx.fillRect((y + 2) * 64, (x - 2) * 64, 64, 64);
-                            eaten.push([x - 1, y + 1]);
-                            validMoves(ctx, board, x - 2, y + 2, c, eaten);
-                            listOfValidMoves.push([x - 2, y + 2, eaten])
+                    else if (pieceColour(positions[x - 1][y + 1]) === 'black') {
+                        if (validCoordinates(x - 2, y + 2) && positions[x - 2][y + 2] === 'E') {
+                            board[x - 2][y + 2].css("background-color", "lime");
                         }
                     }
                 }
 
-                if(validCoordinates(x + 1, y - 1) && c === 'B') {
-                    if(board[x + 1][y - 1] === 'A' && eaten.length === 0) {
-                        ctx.fillStyle = "lime";
-                        ctx.fillRect((y - 1) * 64, (x + 1) * 64, 64, 64);
-                        listOfValidMoves.push([x + 1, y - 1, []])
+                if (validCoordinates(x + 1, y - 1) && pieceColour(c) === 'black') {
+                    if (positions[x + 1][y - 1] === 'E') {
+                        board[x + 1][y - 1].css("background-color", "lime");
                     }
-                    else if(board[x + 1][y - 1] === 'W') {
-                        if(validCoordinates(x + 2, y - 2) && board[x + 2][y - 2] === 'A') {
-                            ctx.fillStyle = "lime";
-                            ctx.fillRect((y - 2) * 64, (x + 2) * 64, 64, 64);
-                            eaten.push([x + 1, y - 1]);
-                            validMoves(ctx, board, x + 2, y - 2, c, eaten);
-                            listOfValidMoves.push([x + 2, y - 2, eaten])
+                    else if (pieceColour(positions[x + 1][y - 1]) === 'white') {
+                        if (validCoordinates(x + 2, y - 2) && positions[x + 2][y - 2] === 'E') {
+                            board[x + 2][y - 2].css("background-color", "lime");
                         }
                     }
                 }
 
-                if(validCoordinates(x + 1, y + 1) && c === 'B') {
-                    if(board[x + 1][y + 1] === 'A' && eaten.length === 0) {
-                        ctx.fillStyle = "lime";
-                        ctx.fillRect((y + 1) * 64, (x + 1) * 64, 64, 64);
-                        listOfValidMoves.push([x + 1, y + 1, []])
+                if (validCoordinates(x + 1, y + 1) && pieceColour(c) === 'black') {
+                    if (positions[x + 1][y + 1] === 'E') {
+                        board[x + 1][y + 1].css("background-color", "lime");
                     }
-                    else if(board[x + 1][y + 1] === 'W') {
-                        if(validCoordinates(x + 2, y + 2) && board[x + 2][y + 2] === 'A'){
-                            ctx.fillStyle = "lime";
-                            ctx.fillRect((y + 2) * 64, (x + 2) * 64, 64, 64);
-                            eaten.push([x + 1, y + 1]);
-                            validMoves(ctx, board, x + 2, y + 2, c, eaten);
-                            listOfValidMoves.push([x + 2, y + 2, eaten])
+                    else if (pieceColour(positions[x + 1][y + 1]) === 'white') {
+                        if (validCoordinates(x + 2, y + 2) && positions[x + 2][y + 2] === 'E') {
+                            board[x + 2][y + 2].css("background-color", "lime");
                         }
                     }
                 }
 
-                return listOfValidMoves;
+                //____________________________SPECIAL CASES: KING MOVEMENTS________________________________________
+
+
+                if (validCoordinates(x + 1, y - 1) && c === 'B') {
+                    if (positions[x + 1][y - 1] === 'E') {
+                        board[x + 1][y - 1].css("background-color", "lime");
+                    }
+                    else if (pieceColour(positions[x + 1][y - 1]) === 'black') {
+                        if (validCoordinates(x + 2, y - 2) && positions[x + 2][y - 2] === 'E') {
+                            board[x + 2][y - 2].css("background-color", "lime");
+                        }
+                    }
+                }
+
+                if (validCoordinates(x + 1, y + 1) && c === 'B') {
+                    if (positions[x + 1][y + 1] === 'E') {
+                        board[x + 1][y + 1].css("background-color", "lime");
+                    }
+                    else if (pieceColour(positions[x + 1][y + 1]) === 'black') {
+                        if (validCoordinates(x + 2, y + 2) && positions[x + 2][y + 2] === 'E') {
+                            board[x + 2][y + 2].css("background-color", "lime");
+                        }
+                    }
+                }
+
+                if (validCoordinates(x - 1, y - 1) && c === 'D') {
+                    if (positions[x - 1][y - 1] === 'E') {
+                        board[x - 1][y - 1].css("background-color", "lime");
+                    }
+                    else if (pieceColour(positions[x - 1][y - 1]) === 'white') {
+                        if (validCoordinates(x - 2, y - 2) && positions[x - 2][y - 2] === 'E') {
+                            board[x - 2][y - 2].css("background-color", "lime");
+                        }
+                    }
+                }
+
+                if (validCoordinates(x - 1, y + 1) && c === 'D') {
+                    if (positions[x - 1][y + 1] === 'E') {
+                        board[x - 1][y + 1].css("background-color", "lime");
+                    }
+                    else if (pieceColour(positions[x - 1][y + 1]) === 'white') {
+                        if (validCoordinates(x - 2, y + 2) && positions[x - 2][y + 2] === 'E') {
+                            board[x - 2][y + 2].css("background-color", "lime");
+                        }
+                    }
+                }
+
+
+
             }
-
-            board = getBoard(boardString);
-            initializeBoard(board, ctx);
-
-            $('#canvas')
-                .on('mousedown', function(event) {
-                    if(selectedPiece !== null) {
-                        var x = Math.floor((event.clientY - rect.top) / 64),
-                            y = Math.floor((event.clientX - rect.left) / 64);
-
-                        //This is here to make sure that pieces don't go over the board.
-                        if(x === 8) x = 7;
-                        if(y === 8) y = 7;
-
-                        //try to move piece from position (selectedPieceX, selectedPieceY) -> (x, y)
-                        board[x][y] = board[selectedPieceX][selectedPieceY];
-                        board[selectedPieceX][selectedPieceY] = 'A';
-
-                        selectedPiece
-                            .css({
-                                left: y * pieceWidth + pieceOffset, top: x * pieceWidth + pieceOffset
-                            })
-                            .css('background-color', 'transparent');
-                        selectedPiece = null; selectedPieceX = null; selectedPieceY = null;
-                        drawBoard(ctx);
-                    }
-                });
         });
     </script>
 </body>
