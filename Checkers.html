@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Checkers</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
         img {
@@ -10,9 +10,6 @@
             -khtml-user-select: none;
             -webkit-user-select: none;
             user-select: none;
-            /* Required to make elements draggable in old WebKit */
-            -khtml-user-drag: element;
-            -webkit-user-drag: element;
         }
 
         #canvas, img {
@@ -26,14 +23,11 @@
 </head>
 <body>
 
-
     <canvas id="canvas" width="512" height="512">Canvas not supported!</canvas>
 
     <script>
-
-
         $( document ).ready( function() {
-            var boardString = 'ABABABAB;BABABABA;AAAAAAAA;AAAAAAAA;AAAAAAAA;AAAAAAAA;AWAWAWAW;WAWAWAWA';
+            var boardString = 'ABABABAB;BABABABA;ABABABAB;AAAAAAAA;AAAAAAAA;WAWAWAWA;AWAWAWAW;WAWAWAWA';
             var cnv = $("#canvas").get(0); var ctx = cnv.getContext("2d"); var rect = canvas.getBoundingClientRect();
             var selectedPiece = null, selectedPieceX = null, selectedPieceY = null;
             var listOfValidMoves, pieceWidth = 64, pieceOffset = 13;
@@ -68,7 +62,7 @@
                                 img = $('<img src="WhitePawn.png" alt="white_pawn"/>');
                             }
                             else if(board[i][j] === 'B') {
-                                img = $('<img src="BlackPawn.png" alt="black_pawn"/>');
+                                img = $('<img src="BlackKing.png" alt="black_pawn"/>');
                             }
                             img
                                 .on('mousedown', function() {
@@ -175,22 +169,29 @@
             board = getBoard(boardString);
             initializeBoard(board, ctx);
 
-            $('#canvas').on('mousedown', function(event) {
-                if(selectedPiece !== null) {
-                    var x = Math.floor((event.clientY - rect.top) / 64),
-                        y = Math.floor((event.clientX - rect.left) / 64);
-                    if(x === 8) x = 7;
-                    if(y === 8) y = 7;
-                    //try to move piece from position (selectedPieceX, selectedPieceY) -> (x, y)
-                    board[x][y] = board[selectedPieceX][selectedPieceY];
-                    board[selectedPieceX][selectedPieceY] = 'A';
-                    selectedPiece.css({
-                        left: y * pieceWidth + pieceOffset, top: x * pieceWidth + pieceOffset
-                    }).css('background-color', 'transparent');
-                    selectedPiece = null; selectedPieceX = null; selectedPieceY = null;
-                    drawBoard(ctx);
-                }
-            });
+            $('#canvas')
+                .on('mousedown', function(event) {
+                    if(selectedPiece !== null) {
+                        var x = Math.floor((event.clientY - rect.top) / 64),
+                            y = Math.floor((event.clientX - rect.left) / 64);
+
+                        //This is here to make sure that pieces don't go over the board.
+                        if(x === 8) x = 7;
+                        if(y === 8) y = 7;
+
+                        //try to move piece from position (selectedPieceX, selectedPieceY) -> (x, y)
+                        board[x][y] = board[selectedPieceX][selectedPieceY];
+                        board[selectedPieceX][selectedPieceY] = 'A';
+
+                        selectedPiece
+                            .css({
+                                left: y * pieceWidth + pieceOffset, top: x * pieceWidth + pieceOffset
+                            })
+                            .css('background-color', 'transparent');
+                        selectedPiece = null; selectedPieceX = null; selectedPieceY = null;
+                        drawBoard(ctx);
+                    }
+                });
         });
     </script>
 </body>
