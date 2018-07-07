@@ -1,7 +1,5 @@
 <?php
 
-// Datoteku treba preimenovati u db.class.php
-
 class DB {
 	private static $db = null;
 

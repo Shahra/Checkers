@@ -21,6 +21,7 @@
                 .on("click", "td", function () {
                     //coordinates are saved in the name of the td, example: <td name="00"></td> is the cell 00.
                     var coordinates = $(this).attr('name');
+                    console.log(coordinates);
                     var x = Number(coordinates[0]), y = Number(coordinates[1]);
 
                     //if we click on the empty cell, we are trying to make a move
@@ -31,7 +32,7 @@
                                 //TODO ovdje sad treba napraviti da poziva neki drugi url, da validira i da salje nazad poziciju ploce
                                 //mozete pogledati u Temporary folderu kako je to radilo dok nije bilo MVC-a, morate paziti da ploce budu uskladjene
                                 //s klijentom, inace cete imati problema
-                                url: "CheckersServer.php",
+                                url: "Temporary/CheckersServer.php",
                                 data: {
                                     oldX: selectedPieceX, oldY: selectedPieceY, newX: x,  newY: y
                                 },
@@ -40,6 +41,7 @@
                                         selectedPieceX = null;
                                         selectedPieceY = null;
                                         positions = data.positions;
+                                        console.log(positions);
                                         drawBoard(board, positions);
                                     }
                                     else {

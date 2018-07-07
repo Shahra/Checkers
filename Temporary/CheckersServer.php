@@ -97,6 +97,7 @@ function getColour($c) {
 function validateMove($positions, $oldX, $oldY, $newX, $newY) {
 	if(getColour($positions[$oldX][$oldY]) === 'white') {
 		if($newX === $oldX - 1 && $newY === $oldY - 1 && $positions[$newX][$newY] === 'E') {
+			echo "True";
 			$positions[$newX][$newY] = $positions[$oldX][$oldY];
 			$positions[$oldX][$oldY] = 'E';
 			//Promote white
@@ -235,7 +236,6 @@ function validateMove($positions, $oldX, $oldY, $newX, $newY) {
 
 
 $oldX = (int) $_GET['oldX']; $oldY = (int) $_GET['oldY']; $newX = (int) $_GET['newX']; $newY = (int) $_GET['newY'];
-
 
 if(validateMove($positions, $oldX, $oldY, $newX, $newY) !== false) {
 	$positions = validateMove($positions, $oldX, $oldY, $newX, $newY);
