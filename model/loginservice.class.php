@@ -87,7 +87,7 @@ class LoginService
 
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare( 'INSERT INTO dz2_users(username, password_hash, email, registration_sequence, has_registered) VALUES ' .
+			$st = $db->prepare( 'INSERT INTO users(username, password_hash, email, registration_sequence, has_registered) VALUES ' .
 													'(:username, :password_hash, :email, :reg_seq, 0)' );
 			$st->execute(
 				array('username' => $_POST['username'],
@@ -122,7 +122,7 @@ class LoginService
 	public static function registerUser($username){
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare('UPDATE dz2_users SET has_registered = 1 WHERE username = :username;');
+			$st = $db->prepare('UPDATE users SET has_registered = 1 WHERE username = :username;');
 			$st->execute(array( 'username' => $username));
 		}
 
