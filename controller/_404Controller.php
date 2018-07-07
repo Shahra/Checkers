@@ -2,8 +2,7 @@
 
 class _404Controller extends BaseController
 {
-	public function index() 
-	{
+	public function index() {
 		// Popuni template potrebnim podacima
 		$this->registry->template->title = 'Stranica nije pronađena.';
 
