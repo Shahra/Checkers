@@ -2,14 +2,15 @@
 
 class User
 {
-	protected $id, $name, $surname, $password;
+	protected $username, $password_hash, $email, $registration_sequence, $has_registered;
 
-	function __construct( $id, $name, $surname, $password )
+	function __construct($username, $password_hash, $email, $registration_sequence, $has_registered)
 	{
-		$this->id = $id;
-		$this->name = $name;
-		$this->surname = $surname;
-		$this->password = $password;
+		$this->username = $username;
+		$this->password_hash = $password_hash;
+		$this->email = $email;
+		$this->registration_sequence = $registration_sequence;
+		$this->has_registered = $has_registered;
 	}
 
 	function __get( $prop ) { return $this->$prop; }

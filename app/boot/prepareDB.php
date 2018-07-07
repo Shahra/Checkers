@@ -7,8 +7,7 @@ $db = DB::getConnection();
 
 $has_tables = false;
 
-try
-{
+try {
 	$st = $db->prepare( 
 		'SHOW TABLES LIKE :tblname'
 	);
@@ -86,8 +85,7 @@ echo "Napravio tablicu dz2_quacks.<br />";
 
 
 // Ubaci neke korisnike unutra
-try
-{
+try {
 	$st = $db->prepare( 'INSERT INTO dz2_users(username, password_hash, email, registration_sequence, has_registered) VALUES (:username, :password, \'a@b.com\', \'abc\', \'1\')' );
 
 	$st->execute( array( 'username' => 'federer', 'password' => password_hash( 'mirka', PASSWORD_DEFAULT ) ) );
