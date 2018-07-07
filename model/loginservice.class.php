@@ -18,31 +18,33 @@ class LoginService
 	}
 
 	public static function isUsernameValid($username) {
-		return preg_match( '/^[a-zA-Z]{7,20}$/', $username);
+		return preg_match( '/^[a-zA-Z]{6,20}$/', $username);
 	}
 
 	public static function isPasswordValid($password) {
-		return preg_match( '/^.{7,20}$/', $password);
+		return preg_match( '/^.{6,20}$/', $password);
 	}
 
 	public static function getUserFromDatabase($username) {
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered FROM dz2_users WHERE username=:username');
+			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online, last_modified FROM users WHERE username=:username');
 			$st->execute(array( 'username' => $username));
 		}
+
 		catch(PDOException $e) {
 			exit('PDO error ' . $e->getMessage());
 		}
+
 		$row = $st->fetch();
 		if($row === false) { return false; }
-		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered']); }
+		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'], $row['last_modified'] ); }
 	}
 
 	public static function getUserFromDatabaseWithRegSeq($reg_seq) {
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered FROM dz2_users WHERE registration_sequence=:reg_seq');
+			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online, last_modified FROM users WHERE registration_sequence=:reg_seq');
 			$st->execute(array( 'reg_seq' => $reg_seq));
 		}
 
@@ -53,7 +55,7 @@ class LoginService
 		$row = $st->fetch();
 
 		if($row === false) { return false; }
-		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered']); }
+		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'], $row['last_modified'] ); }
  	}
 
 	public static function generateRegistrationSequence() {

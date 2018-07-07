@@ -23,7 +23,7 @@ class LoginController extends BaseController
 		}
 
 		if(!LoginService::isUsernameValid($_POST['username'])) {
-			$this->registry->template->message = 'Korisničko ime se treba sastojati od 7 i 20 slova.';
+			$this->registry->template->message = 'Korisničko ime se treba sastojati od 6 i 20 slova.';
 			$this->registry->template->show('login_index');
 			exit();
 		}
@@ -74,7 +74,7 @@ class LoginController extends BaseController
 		}
 
 		if(!LoginService::isUsernameValid($_POST['username'])) {
-			$this->registry->template->message = 'Korisničko ime se treba sastojati od 7 i 20 slova.';
+			$this->registry->template->message = 'Korisničko ime se treba sastojati od 6 i 20 slova.';
 			$this->registry->template->show('login_newUser');
 			exit();
 		}
