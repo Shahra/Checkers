@@ -20,6 +20,8 @@
 
 	<nav>
         <ul>
+            <!-- TODO ovaj link cemo kasnije morati maknuti, trenutno je samo za testiranje ovdje -->
+            <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=checkers/game">Game view</a></li>
             <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a></li>
         </ul>
 	</nav>
