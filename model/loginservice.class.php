@@ -41,6 +41,19 @@ class LoginService
 		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'], $row['last_modified'] ); }
 	}
 
+	public static function updateOnlineStatusForUser($username, $online) {
+		try {
+			$db = DB::getConnection();
+			$st = $db->prepare('UPDATE users set online = :online WHERE username=:username');
+			$st->execute(array('username' => $username, 'online' => $online));
+		}
+
+		catch(PDOException $e) {
+			exit('PDO error ' . $e->getMessage());
+		}
+	}
+
+
 	public static function getUserFromDatabaseWithRegSeq($reg_seq) {
 		try {
 			$db = DB::getConnection();

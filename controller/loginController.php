@@ -50,6 +50,7 @@ class LoginController extends BaseController
 
 		else {
 			$_SESSION['username'] = $_POST['username'];
+			LoginService::updateOnlineStatusForUser($_SESSION['username'], 1);
 			header( 'Location: ' . __SITE_URL . '/index.php?rt=checkers' );
 			exit();
 		}
@@ -125,6 +126,7 @@ class LoginController extends BaseController
 
 	public function logout() {
 		session_start();
+		LoginService::updateOnlineStatusForUser($_SESSION['username'], 0);
 		session_destroy();
 		header('Location: ' . __SITE_URL . '/index.php?rt=login/index');
 	}
