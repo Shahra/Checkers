@@ -10,15 +10,14 @@
 <body>
 	<h1><?php echo $title; ?></h1>
 
-	<nav>
-        <ul>
+    <br><br>
             <!-- TODO ovaj link cemo kasnije morati maknuti, trenutno je samo za testiranje ovdje -->
             <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=checkers/game">Game view</a></li>
-            <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a></li>
-        </ul>
-	</nav>
+
 <div id="div-online"></div>
 
+<br><br>
+<p id="logout"><a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a></p>
 
 <script>
 $("body").on("click", "td", function () {
@@ -29,11 +28,9 @@ $("body").on("click", "td", function () {
 	    return;
 	}
 });
-
 $( document ).ready( function() {
 	ucitajOnlineIgrace(0);
 });
-
 ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
 {
     var url = "Temporary/ucitajOnlineIgrace.php";
@@ -56,27 +53,25 @@ ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
 		},
 		error: function( xhr, status )
 		{
-
 			if( status === "timeout" )
 				ucitajOnlineIgrace(vrijemeZadnjegPristupa);
 		}
 	} );
 }
-
-
 crtajOnlineIgrace = function(data)
 {
-	var tbl = $( "<table></table>" );
-
+	var tbl = $( "<table></table>" ).attr("id", "online");
+    var th = $( "<th></th>").html("Online:");
+    tbl.append(th);
 	for( var i = 0; i < data.usernames.length; ++i )
 	{
 		var tr = $( "<tr></tr>" );
-
-		var td_username = $("<td></td>").html( data.usernames[i].username);
-		tr.append(td_username);
+		var td = $( "<td></td>" );
+        var but_user = $("<button></button>").html( data.usernames[i].username);
+        td.append(but_user);
+		tr.append(td);
 		tbl.append(tr);
 	}
-
 	$("#div-online").html(tbl);
 }
 </script>

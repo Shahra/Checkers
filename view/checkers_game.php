@@ -139,16 +139,16 @@
                 for (var i = 0; i < positions.length; i++) {
                     for (var j = 0; j < positions[i].length; j++) {
                         if (positions[i][j] === 'A') {
-                            board[i][j].html('<img class="piece" src="WhitePawn.png" alt="white_pawn"/>');
+                            board[i][j].html('<img class="piece" src="view/WhitePawn.png" alt="white_pawn"/>');
                         }
                         else if (positions[i][j] === 'B') {
-                            board[i][j].html('<img class="piece" src="WhiteKing.png" alt="white_king"/>');
+                            board[i][j].html('<img class="piece" src="view/WhiteKing.png" alt="white_king"/>');
                         }
                         else if (positions[i][j] === 'C') {
-                            board[i][j].html('<img class="piece" src="BlackPawn.png" alt="black_pawn"/>');
+                            board[i][j].html('<img class="piece" src="view/BlackPawn.png" alt="black_pawn"/>');
                         }
                         else if (positions[i][j] === 'D') {
-                            board[i][j].html('<img class="piece" src="BlackKing.png" alt="black_king"/>');
+                            board[i][j].html('<img class="piece" src="view/BlackKing.png" alt="black_king"/>');
                         }
                         else if (positions[i][j] === 'E') {
                             board[i][j].html('');
