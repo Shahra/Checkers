@@ -7,7 +7,7 @@
 </head>
 <body>
 	<h1>Checkers!</h1>
-    <p class="message">
+    <p>
         Registracija je uspješno provedena.<br />
         Sada se možete ulogirati na <a href="index.php">početnoj stranici</a>.
     </p>
