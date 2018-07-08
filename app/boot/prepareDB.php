@@ -7,7 +7,7 @@ $db = DB::getConnection();
 $has_tables = false;
 
 try {
-	$st = $db->prepare( 
+	$st = $db->prepare(
 		'SHOW TABLES LIKE :tblname'
 	);
 
@@ -32,7 +32,7 @@ if( $has_tables ) {
 }
 
 try {
-	$st = $db->prepare( 
+	$st = $db->prepare(
 		'CREATE TABLE IF NOT EXISTS users (' .
 		'id int NOT NULL PRIMARY KEY AUTO_INCREMENT,' .
 		'username varchar(20) NOT NULL,' .
@@ -53,7 +53,8 @@ echo "Napravio tablicu users.<br />";
 
 // Ubaci neke korisnike unutra
 try {
-	$st = $db->prepare('INSERT INTO users(username, password_hash, email, registration_sequence, has_registered) VALUES (:username, :password, \'a@b.com\', \'abc\', 1)' );
+	$st = $db->prepare("INSERT INTO users(username, password_hash, email, registration_sequence, has_registered)
+	VALUES (:username, :password, 'a@b.com', 'abc', 1)");
 
 	$st->execute(array('username' => 'zeljko', 'password' => password_hash('zeljko', PASSWORD_DEFAULT)));
 	$st->execute(array('username' => 'matija', 'password' => password_hash('matija', PASSWORD_DEFAULT)));
@@ -64,4 +65,19 @@ catch(PDOException $e) { exit("PDO error [insert users]: " . $e->getMessage()); 
 
 echo "Ubacio u tablicu users.<br />";
 
-?> 
+
+try {
+	$st = $db->prepare(
+		'CREATE TABLE IF NOT EXISTS games(' .
+		'username_bijelog varchar(20) NOT NULL,' .
+		'username_crnog varchar(20) NOT NULL,' .
+		'board varchar(80) NOT NULL,'.
+		'status varchar(20) NOT NULL,' .
+		'last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)'
+	);
+	$st->execute();
+}
+catch(PDOException $e) {
+	exit("PDO error [create games]: " . $e->getMessage());
+}
+?>

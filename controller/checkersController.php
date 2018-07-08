@@ -1,5 +1,4 @@
 <?php
-session_start();
 class CheckersController extends BaseController {
 	public function index() {
 		$this->registry->template->title = ' Checkers!';

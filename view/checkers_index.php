@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,12 +21,13 @@
 <p id="logout"><a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a></p>
 
 <script>
+var izazov = setInterval(jesamLiIzazvan, 4000);
 $("body").on("click", "td", function () {
-	var name = $(this).html();
+	var name = $(this).children(0).html();
 	if (confirm('Challenge ' + name + ' to a game?')) {
-    	return;
+    	pozoviIgraca(name);
 	} else {
-	    return;
+	    odbijPoziv(name);
 	}
 });
 $( document ).ready( function() {
@@ -41,6 +43,7 @@ ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
 		data:
 		{
 			vrijemeZadnjegPristupa: vrijemeZadnjegPristupa,
+            username:  <?php echo '"'.$_SESSION['username'].'"'; ?>
 		},
 		success: function(data)
 		{
@@ -49,7 +52,9 @@ ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
 			{
 				crtajOnlineIgrace(data);
 				ucitajOnlineIgrace(data.vrijemeZadnjegPristupa);
-			}
+			} else {
+                console.log("Undefined");
+            }
 		},
 		error: function( xhr, status )
 		{
@@ -58,8 +63,10 @@ ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
 		}
 	} );
 }
+
 crtajOnlineIgrace = function(data)
 {
+    console.log(<?php echo '"'.$_SESSION['username'].'"';?>);
 	var tbl = $( "<table></table>" ).attr("id", "online");
     var th = $( "<th></th>").html("Online:");
     tbl.append(th);
@@ -74,6 +81,76 @@ crtajOnlineIgrace = function(data)
 	}
 	$("#div-online").html(tbl);
 }
+
+function jesamLiIzazvan() {
+        $.ajax({
+            type: "post",
+            url: "../Checkers/index.php?rt=invite/obradiPoziv",
+            dataType: "json",
+            data: {username: <?php echo '"'.$_SESSION['username'].'"'; ?>},
+            success: function (data) {
+                console.log("Success jesamLiIzazvan");
+                if (data.poziv !== 'nema_poziva') {
+                    if(confirm("Želite li igrati s " + data.username_bijelog + "?")) {
+                        prihvatiPoziv(data.username_bijelog);
+                    } else {
+                        odbijPoziv(data.username_bijelog);
+                    }
+                }
+                else {console.log("Nema poziva!");}
+
+            },
+            error: function (status) {
+                console.log("ajax error: jesamLiIzazvan" + JSON.stringify(status) );
+            }
+        });
+    }
+
+function prihvatiPoziv(username_bijelog) {
+    $.ajax({
+        type: "post",
+        url: "../Checkers/index.php?rt=invite/obradiPoziv",
+        dataType: "json",
+        data: {prihvati_poziv_usera: username_bijelog, moj_username:<?php echo '"'.$_SESSION['username'].'"'; ?>, },
+        success: function (data) {
+            console.log("Success prihvatiPoziv");
+        },
+        error: function (status) {
+            console.log("ajax error: prihvatiPoziv" + JSON.stringify(status));
+        }
+    });
+}
+
+function odbijPoziv(username_bijelog) {
+    $.ajax({
+        type: "post",
+        url: "../Checkers/index.php?rt=invite/obradiPoziv",
+        dataType: "json",
+        data: {odbijen_user: username_bijelog, moj_username:<?php echo '"'.$_SESSION['username'].'"'; ?>, },
+        success: function (data) {
+            console.log("Success odbijPoziv");
+        },
+        error: function (status) {
+            console.log("ajax error: odbijPoziv" + JSON.stringify(status));
+        }
+    });
+}
+
+function pozoviIgraca(playerNick) {
+        $.ajax({
+            type: "post",
+            url: "../Checkers/index.php?rt=invite/pozoviNaIgru",
+            dataType: "json",
+            data: {username_igraca_kojeg_zovemo: playerNick, nas_username: <?php echo '"'.$_SESSION['username'].'"'; ?>},
+            success: function (data) {
+                console.log("Success pozoviIgraca");
+                $("#gameview").click();
+            },
+            error: function (status) {
+                console.log("ajax error: pozoviIgraca" + JSON.stringify(status));
+            }
+        });
+    }
 </script>
 
 <?php require_once __SITE_PATH . '/view/_footer.php'; ?>

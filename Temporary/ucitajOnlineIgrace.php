@@ -37,7 +37,7 @@ while( 1 )
 	{
 		// Dohvati sve dionice
 		$st = $db->prepare( "SELECT username FROM users WHERE online LIKE '1' AND username NOT LIKE :username" );
-		$st->execute(array("username" => $_SESSION['username']));
+		$st->execute(array("username" => $_GET['username']));
 
 		$message = [];
 		$message[ 'vrijemeZadnjegPristupa' ] = $timestamp;
