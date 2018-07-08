@@ -17,14 +17,8 @@
             <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a></li>
         </ul>
 	</nav>
-<table>
-	<tr><th>Online: </th></tr>
+<div id="div-online"></div>
 
-<?php  for($i = 0; $i < count($online); $i++) {
-	echo "<tr><td>" . $online[$i] . "</td></tr>";
-}
-?>
-</table>
 
 <script>
 $("body").on("click", "td", function () {
@@ -35,6 +29,56 @@ $("body").on("click", "td", function () {
 	    return;
 	}
 });
+
+$( document ).ready( function() {
+	ucitajOnlineIgrace(0);
+});
+
+ucitajOnlineIgrace = function(vrijemeZadnjegPristupa)
+{
+    var url = "Temporary/ucitajOnlineIgrace.php";
+	$.ajax(
+	{
+		url: url,
+		dataType: "json",
+		data:
+		{
+			vrijemeZadnjegPristupa: vrijemeZadnjegPristupa,
+		},
+		success: function(data)
+		{
+            console.log("Success");
+			if( typeof( data.error ) === "undefined" )
+			{
+				crtajOnlineIgrace(data);
+				ucitajOnlineIgrace(data.vrijemeZadnjegPristupa);
+			}
+		},
+		error: function( xhr, status )
+		{
+
+			if( status === "timeout" )
+				ucitajOnlineIgrace(vrijemeZadnjegPristupa);
+		}
+	} );
+}
+
+
+crtajOnlineIgrace = function(data)
+{
+	var tbl = $( "<table></table>" );
+
+	for( var i = 0; i < data.usernames.length; ++i )
+	{
+		var tr = $( "<tr></tr>" );
+
+		var td_username = $("<td></td>").html( data.usernames[i].username);
+		tr.append(td_username);
+		tbl.append(tr);
+	}
+
+	$("#div-online").html(tbl);
+}
 </script>
 
 <?php require_once __SITE_PATH . '/view/_footer.php'; ?>
