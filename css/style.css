@@ -94,6 +94,7 @@ h1 {
 }
 
 #table {
+    table-layout: fixed;
     text-align: center;
     border-collapse: collapse;
     border-spacing: 0;
@@ -108,7 +109,7 @@ h1 {
 #table td {
     position: relative;
     vertical-align: middle;
-    width: 68px;
-    height: 68px;
+    width: 64px;
+    height: 64px;
     border: 1px solid black;
 }

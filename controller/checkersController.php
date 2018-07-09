@@ -47,6 +47,24 @@ class CheckersController extends BaseController {
 		JSONService::sendJSONandExit('');
 	}
 
+	public function getBoardInfo() {
+		$message = CheckersService::getBoardInfo();
+		JSONService::sendJSONandExit($message);
+	}
+
+	public function movePiece() {
+		if(!isset($_GET['oldX']) || !isset($_GET['oldY']) || !isset($_GET['newX']) || !isset($_GET['oldX'])) {
+			JSONService::sendErrorAndExit('Error: You have to set up oldX, oldY, newX and newY.');
+		}
+		$oldX = $_GET['oldX']; $oldY = $_GET['oldY']; $newX = $_GET['newX']; $newY = $_GET['newY'];
+		if(!CheckersService::validCoordinate($oldX) || !CheckersService::validCoordinate($oldY) ||
+			 !CheckersService::validCoordinate($newX) || !CheckersService::validCoordinate($newY)) {
+			JSONService::sendErrorAndExit('Error: Coordinates are not valid.');
+		}
+		CheckersService::movePiece((int)$_GET['oldX'], (int)$_GET['oldY'], (int)$_GET['newX'], (int)$_GET['newY']);
+		JSONService::sendJSONandExit('');
+	}
+
 };
 
 ?>

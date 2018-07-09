@@ -11,80 +11,51 @@
     <table id="table"></table>
     <script>
         $(document).ready(function() {
-            var playerColour = "black";
-            var positions = 'ECECECEC;CECECECE;ECECECEC;EEEEEEEE;EEEEEEEE;AEAEAEAE;EAEAEAEA;AEAEAEAE';
-            positions = parsePositions(positions);
+            var myColour = ""; var turn = "black";
+            var opponentName = ""; var positions = "";
             var selectedPieceX = null, selectedPieceY = null;
-            var board = boardInit(); drawBoard(board, positions);
+            var board;
+            getBoardInfo(); setInterval(getBoardInfo, 1000);
 
             $("body")
                 .on("click", "td", function () {
-                    //coordinates are saved in the name of the td, example: <td name="00"></td> is the cell 00.
-                    var coordinates = $(this).attr('name');
-                    console.log(coordinates);
-                    var x = Number(coordinates[0]), y = Number(coordinates[1]);
-
-                    //if we click on the empty cell, we are trying to make a move
-                    if ($(this).html() === '') {
-                        if (selectedPieceX !== null) {
-                            $.ajax({
-
-                                //TODO ovdje sad treba napraviti da poziva neki drugi url, da validira i da salje nazad poziciju ploce
-                                //mozete pogledati u Temporary folderu kako je to radilo dok nije bilo MVC-a, morate paziti da ploce budu uskladjene
-                                //s klijentom, inace cete imati problema
-                                url: "Temporary/CheckersServer.php",
-                                data: {
-                                    oldX: selectedPieceX, oldY: selectedPieceY, newX: x,  newY: y
-                                },
-                                success: function(data) {
-                                    if(data.positions !== undefined){
-                                        selectedPieceX = null;
-                                        selectedPieceY = null;
-                                        positions = data.positions;
-                                        console.log(positions);
-                                        drawBoard(board, positions);
-                                    }
-                                    else {
-                                        alert("potez nije validan");
-                                    }
-                                },
-                                error: function(xhr, status) {
-                                    if( status !== null ) {
-                                        console.log( "Greška prilikom Ajax poziva: " + status );
-                                    }
-                                }
-                            });
-                        }
+                    if(myColour !== turn) {
+                        alert("It's not your turn, please wait!");
                     }
-
-                    //else, we are selecting a piece
                     else {
-                        var name = $(this).children().eq(0).attr('src');
-                        selectedPieceX = x; selectedPieceY = y;
+                        //coordinates are saved in the name of the td, example: <td name="00"></td> is the cell 00.
+                        var coordinates = $(this).attr('name');
+                        var x = Number(coordinates[0]), y = Number(coordinates[1]);
 
-                        //we remove previously selected tiles on the board
-                        resetBoardColors(board);
-
-                        //and we colour the selected piece
-                        board[selectedPieceX][selectedPieceY].css("background-color", "yellow");
-
-                        if (name === 'view/WhitePawn.png') {
-                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'A');
+                        //if we click on the empty cell, we are trying to make a move
+                        if($(this).children().eq(0).attr('src') === "view/Empty.png") {
+                            if (selectedPieceX !== null) {
+                                $.ajax({
+                                    url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/movePiece",
+                                    data: {
+                                        oldX: selectedPieceX, oldY: selectedPieceY,
+                                        newX: x, newY: y
+                                    },
+                                    success: function() {
+                                    },
+                                    error: function(xhr, status) {
+                                        if( status !== null ) {
+                                            console.log( "Greška prilikom Ajax poziva: " + status );
+                                        }
+                                    }
+                                });
+                            }
                         }
 
-                        else if (name === 'view/WhiteKing.png') {
-                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'B');
-                        }
-
-                        else if (name === 'view/BlackPawn.png') {
-                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'C');
-                        }
-
-                        else if (name === 'view/BlackKing.png') {
-                            showValidMoves(positions, selectedPieceX, selectedPieceY, 'D');
+                        //else, we are selecting a piece
+                        else {
+                            selectedPieceX = x; selectedPieceY = y;
+                            resetBoardColors(board);
+                            showValidMoves(positions, selectedPieceX, selectedPieceY);
                         }
                     }
                 });
+
 
             function parsePositions(positions) {
                 var matrix = positions.split(';');
@@ -96,9 +67,10 @@
 
             function boardInit() {
                 var table = $("#table");
+                table.html('');
                 var board = [];
 
-                if(playerColour === 'white') {
+                if(myColour === 'white') {
                     for (var i = 0; i < 8; i++) {
                         var row = $("<tr></tr>");
                         board[i] = [];
@@ -110,7 +82,7 @@
                     }
                 }
 
-                else if(playerColour === 'black') {
+                else if(myColour === 'black') {
                     for (var i = 7; i >= 0; i--) {
                         var row = $("<tr></tr>");
                         board[i] = [];
@@ -151,7 +123,7 @@
                             board[i][j].html('<img class="piece" src="view/BlackKing.png" alt="black_king"/>');
                         }
                         else if (positions[i][j] === 'E') {
-                            board[i][j].html('');
+                            board[i][j].html('<img class="piece" src="view/Empty.png" alt="black_king"/>');
                         }
                     }
                 }
@@ -168,11 +140,27 @@
                 else return 'none';
             }
 
-            function showValidMoves(positions, x, y, c) {
+            function showValidMoves(positions, x, y) {
+
+                if(myColour !== turn) {
+                    return false;
+                }
+
+                if(x === null || y === null) {
+                    return false
+                }
 
                 if (!validCoordinates(x, y)) {
                     return false;
                 }
+
+                var c = positions[selectedPieceX][selectedPieceY];
+
+                if(myColour !== pieceColour(c)) {
+                    return false;
+                }
+
+                board[x][y].css("background-color", "yellow");
 
                 if (validCoordinates(x - 1, y - 1) && pieceColour(c) === 'white') {
                     if (positions[x - 1][y - 1] === 'E') {
@@ -265,7 +253,32 @@
                     }
                 }
             }
+
+            function getBoardInfo() {
+                $.ajax({
+                    url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/getBoardInfo",
+                    dataType: "json",
+                    data: {},
+                    success: function(data) {
+                        if (data !== false) {
+                            turn = data.turn;
+                            myColour = data.colour;
+                            opponentName = data.opponentName;
+                            positions = parsePositions(data.positions);
+                            board = boardInit(); drawBoard(board, positions);
+                            resetBoardColors(board); showValidMoves(positions, selectedPieceX, selectedPieceY);
+                        }
+                        else {
+                            window.location.replace("<?php echo __SITE_URL; ?>/index.php?rt=checkers/index");
+                        }
+                    },
+                    error: function(status) {
+                        console.log("Ajax error: getBoardInfo" + JSON.stringify(status));
+                    }
+                });
+            }
         });
+
     </script>
 </body>
 </html>
