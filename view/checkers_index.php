@@ -21,32 +21,32 @@
 
     <script>
         $(document).ready(function() {
-            var izazov = setInterval(jesamLiIzazvan, 4000);
-            $("body").on("click", "td", function () {
+            setInterval(insideGame, 2000); setInterval(checkIfChallenged, 2000);
+            $("body").on("click", "#div-online td", function () {
                 var name = $(this).children(0).html();
-                if (confirm('Challenge ' + name + ' to a game?')) {
-                    pozoviIgraca(name);
-                } else {
-                    odbijPoziv(name);
+                if(confirm('Challenge ' + name + ' to a game?')) {
+                    challengePlayer(name);
                 }
             });
             getOnlinePlayers();
         });
+
         getOnlinePlayers = function() {
             $.ajax({
                 url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/getOnlinePlayers",
                 dataType: "json",
                 data: {},
                 success: function(data) {
-                    setTimeout(getOnlinePlayers, 5000);
+                    setTimeout(getOnlinePlayers, 2000);
                     drawOnlinePlayers(data);
                 },
                 error: function(status) {
                     console.log("Greska dohvat podataka: " + status.responseText);
-                    setTimeout(getOnlinePlayers, 5000);
+                    setTimeout(getOnlinePlayers, 2000);
                 }
             });
         };
+
         drawOnlinePlayers = function(onlinePlayers) {
             var tbl = $('<table id="online"></table>');
             var th = $('<th>Online:</th>');
@@ -62,76 +62,95 @@
             $("#div-online").html(tbl);
         };
 
-        function jesamLiIzazvan() {
+        function challengePlayer(name) {
             $.ajax({
                 type: "post",
-                url: "../Checkers/index.php?rt=invite/obradiPoziv",
+                url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/challengePlayer",
                 dataType: "json",
-                data: {username: <?php echo '"'.$_SESSION['username'].'"'; ?>},
-                success: function (data) {
-                    console.log("Success jesamLiIzazvan");
-                    if (data.poziv !== 'nema_poziva') {
-                        if(confirm("Želite li igrati s " + data.username_bijelog + "?")) {
-                            prihvatiPoziv(data.username_bijelog);
-                        } else {
-                            odbijPoziv(data.username_bijelog);
+                data: {
+                    challengedPlayer: name
+                },
+                success: function(data) {
+                    console.log("LOG:: player challenged");
+                },
+                error: function(status) {
+                    console.log("Ajax error: challengePlayer" + JSON.stringify(status));
+                }
+            });
+        }
+
+        function checkIfChallenged() {
+            $.ajax({
+                type: "post",
+                url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/checkIfChallenged",
+                dataType: "json",
+                data: {},
+                success: function(name) {
+                    if(name !== false) {
+                        if(confirm('Do you want to play against ' + name + '? ')) {
+                            acceptChallenge(name);
+                        }
+                        else {
+                            declineChallenge(name);
                         }
                     }
-                    else {console.log("Nema poziva!");}
-
                 },
-                error: function (status) {
-                    console.log("ajax error: jesamLiIzazvan" + JSON.stringify(status) );
+                error: function(status) {
+                    console.log("Ajax error: checkIfChallenged" + JSON.stringify(status));
                 }
             });
         }
 
-        function prihvatiPoziv(username_bijelog) {
+        function acceptChallenge(name) {
             $.ajax({
                 type: "post",
-                url: "../Checkers/index.php?rt=invite/obradiPoziv",
+                url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/acceptChallenge",
                 dataType: "json",
-                data: {prihvati_poziv_usera: username_bijelog, moj_username:<?php echo '"'.$_SESSION['username'].'"'; ?>, },
-                success: function (data) {
-                    console.log("Success prihvatiPoziv");
+                data: {
+                    name: name
                 },
-                error: function (status) {
-                    console.log("ajax error: prihvatiPoziv" + JSON.stringify(status));
+                success: function(data) {
+                    console.log("LOG::accepted challenge");
+                },
+                error: function(status) {
+                    console.log("Ajax error: acceptChallenge" + JSON.stringify(status));
                 }
             });
         }
 
-        function odbijPoziv(username_bijelog) {
+        function declineChallenge(name) {
             $.ajax({
                 type: "post",
-                url: "../Checkers/index.php?rt=invite/obradiPoziv",
+                url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/declineChallenge",
                 dataType: "json",
-                data: {odbijen_user: username_bijelog, moj_username:<?php echo '"'.$_SESSION['username'].'"'; ?>, },
-                success: function (data) {
-                    console.log("Success odbijPoziv");
+                data: {
+                    name: name
                 },
-                error: function (status) {
-                    console.log("ajax error: odbijPoziv" + JSON.stringify(status));
+                success: function(data) {
+                    console.log("LOG::decline successful");
+                },
+                error: function(status) {
+                    console.log("Ajax error: declineChallenge" + JSON.stringify(status));
                 }
             });
         }
 
-        function pozoviIgraca(playerNick) {
+        function insideGame() {
             $.ajax({
-                type: "post",
-                url: "../Checkers/index.php?rt=invite/pozoviNaIgru",
+                url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/insideGame",
                 dataType: "json",
-                data: {username_igraca_kojeg_zovemo: playerNick, nas_username: <?php echo '"'.$_SESSION['username'].'"'; ?>},
-                success: function (data) {
-                    console.log("Success pozoviIgraca");
-                    $("#gameview").click();
+                data: {},
+                success: function(data) {
+                    console.log("LOG::insideGame::" + data);
+                    if(data === true) {
+                        window.location.replace("<?php echo __SITE_URL; ?>/index.php?rt=checkers/game");
+                    }
                 },
-                error: function (status) {
-                    console.log("ajax error: pozoviIgraca" + JSON.stringify(status));
+                error: function(status) {
+                    console.log("Ajax error: insideGame" + JSON.stringify(status));
                 }
             });
         }
 
     </script>
-
 <?php require_once __SITE_PATH . '/view/_footer.php'; ?>
