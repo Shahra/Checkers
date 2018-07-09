@@ -80,4 +80,6 @@ try {
 catch(PDOException $e) {
 	exit("PDO error [create games]: " . $e->getMessage());
 }
+
+echo "Napravio tablicu games.<br />";
 ?>

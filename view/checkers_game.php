@@ -68,19 +68,19 @@
                         //and we colour the selected piece
                         board[selectedPieceX][selectedPieceY].css("background-color", "yellow");
 
-                        if (name === 'WhitePawn.png') {
+                        if (name === 'view/WhitePawn.png') {
                             showValidMoves(positions, selectedPieceX, selectedPieceY, 'A');
                         }
 
-                        else if (name === 'WhiteKing.png') {
+                        else if (name === 'view/WhiteKing.png') {
                             showValidMoves(positions, selectedPieceX, selectedPieceY, 'B');
                         }
 
-                        else if (name === 'BlackPawn.png') {
+                        else if (name === 'view/BlackPawn.png') {
                             showValidMoves(positions, selectedPieceX, selectedPieceY, 'C');
                         }
 
-                        else if (name === 'BlackKing.png') {
+                        else if (name === 'view/BlackKing.png') {
                             showValidMoves(positions, selectedPieceX, selectedPieceY, 'D');
                         }
                     }
