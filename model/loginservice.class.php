@@ -28,7 +28,7 @@ class LoginService
 	public static function getUserFromDatabase($username) {
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online, last_modified FROM users WHERE username=:username');
+			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online FROM users WHERE username=:username');
 			$st->execute(array( 'username' => $username));
 		}
 
@@ -38,7 +38,7 @@ class LoginService
 
 		$row = $st->fetch();
 		if($row === false) { return false; }
-		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'], $row['last_modified'] ); }
+		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'] ); }
 	}
 
 	public static function updateOnlineStatusForUser($username, $online) {
@@ -57,7 +57,7 @@ class LoginService
 	public static function getUserFromDatabaseWithRegSeq($reg_seq) {
 		try {
 			$db = DB::getConnection();
-			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online, last_modified FROM users WHERE registration_sequence=:reg_seq');
+			$st = $db->prepare('SELECT username, password_hash, email, registration_sequence, has_registered, online FROM users WHERE registration_sequence=:reg_seq');
 			$st->execute(array( 'reg_seq' => $reg_seq));
 		}
 
@@ -68,7 +68,7 @@ class LoginService
 		$row = $st->fetch();
 
 		if($row === false) { return false; }
-		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'], $row['last_modified'] ); }
+		else { return new User($row['username'], $row['password_hash'], $row['email'], $row['registration_sequence'], $row['has_registered'], $row['online'] ); }
  	}
 
 	public static function generateRegistrationSequence() {

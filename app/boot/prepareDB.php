@@ -28,7 +28,12 @@ catch(PDOException $e) {
 
 
 if( $has_tables ) {
-	exit('Tablice users / games vec postoje. Obrisite ih pa probajte ponovno.');
+	$st = $db->prepare(
+		'DROP TABLE IF EXISTS USERS;' .
+		'DROP TABLE IF EXISTS GAMES;'
+	);
+	echo 'Tablice users / games su vec postojale. Brisem tablice. <br />';
+	$st->execute();
 }
 
 try {
@@ -40,8 +45,7 @@ try {
 		'email varchar(50) NOT NULL,' .
 		'registration_sequence varchar(20) NOT NULL,' .
 		'has_registered int DEFAULT 0,' .
-		'online int DEFAULT 0,' .
-		'last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)'
+		'online int DEFAULT 0);'
 	);
 	$st->execute();
 }
@@ -68,12 +72,11 @@ echo "Ubacio u tablicu users.<br />";
 
 try {
 	$st = $db->prepare(
-		'CREATE TABLE IF NOT EXISTS games(' .
-		'username_bijelog varchar(20) NOT NULL,' .
-		'username_crnog varchar(20) NOT NULL,' .
-		'board varchar(80) NOT NULL,'.
-		'status varchar(20) NOT NULL,' .
-		'last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)'
+		"CREATE TABLE IF NOT EXISTS games(" .
+		"white_name varchar(20) NOT NULL," .
+		"black_name varchar(20) NOT NULL," .
+		"board varchar(80) NOT NULL DEFAULT 'ECECECEC;CECECECE;ECECECEC;EEEEEEEE;EEEEEEEE;AEAEAEAE;EAEAEAEA;AEAEAEAE',".
+		"status varchar(20) NOT NULL DEFAULT 'PENDING_REQUEST');"
 	);
 	$st->execute();
 }
