@@ -11,9 +11,6 @@
 <body>
 	<h1><?php echo $title; ?></h1>
 
-    <!-- TODO ovaj link cemo kasnije morati maknuti, trenutno je samo za testiranje ovdje -->
-    <li><a href="<?php echo __SITE_URL; ?>/index.php?rt=checkers/game">Game view</a></li>
-
     <div id="div-online"></div>
     <p id="logout">
         <a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a>
@@ -21,33 +18,38 @@
 
     <script>
         $(document).ready(function() {
-            setInterval(insideGame, 2000); setInterval(checkIfChallenged, 2000);
+            //We want to refresh on 0 seconds and then on every 2 seconds.
+            //That's why we have setInterval(refresh) right after refresh.
+            refresh(); setInterval(refresh, 2000);
             $("body").on("click", "#div-online td", function () {
                 var name = $(this).children(0).html();
                 if(confirm('Challenge ' + name + ' to a game?')) {
                     challengePlayer(name);
                 }
             });
-            getOnlinePlayers();
         });
 
-        getOnlinePlayers = function() {
+        function refresh() {
+            insideGame();
+            checkIfChallenged();
+            getOnlinePlayers();
+        }
+
+        function getOnlinePlayers() {
             $.ajax({
                 url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/getOnlinePlayers",
                 dataType: "json",
                 data: {},
                 success: function(data) {
-                    setTimeout(getOnlinePlayers, 2000);
-                    drawOnlinePlayers(data);
+                    updateOnlinePlayers(data);
                 },
                 error: function(status) {
                     console.log("Greska dohvat podataka: " + status.responseText);
-                    setTimeout(getOnlinePlayers, 2000);
                 }
             });
-        };
+        }
 
-        drawOnlinePlayers = function(onlinePlayers) {
+        function updateOnlinePlayers(onlinePlayers) {
             var tbl = $('<table id="online"></table>');
             var th = $('<th>Online:</th>');
             tbl.append(th);
@@ -60,7 +62,7 @@
                 tbl.append(tr);
             }
             $("#div-online").html(tbl);
-        };
+        }
 
         function challengePlayer(name) {
             $.ajax({
@@ -81,7 +83,6 @@
 
         function checkIfChallenged() {
             $.ajax({
-                type: "post",
                 url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/checkIfChallenged",
                 dataType: "json",
                 data: {},
