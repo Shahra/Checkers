@@ -12,6 +12,7 @@
 	<h1><?php echo $title; ?></h1>
 
     <div id="div-online"></div>
+    <span class="upperRightCorner"><?php echo $_SESSION['username'] ?></span>
     <p id="logout">
         <a href="<?php echo __SITE_URL; ?>/index.php?rt=login/logout">Logout</a>
     </p>

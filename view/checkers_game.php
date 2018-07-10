@@ -9,8 +9,8 @@
 </head>
 <body>
     <table id="table"></table>
-    <div id="opponentName">Matija</div>
-    <div id="myName">Zeljko</div>
+    <div id="opponentName" class="upperRightCorner"></div>
+    <div id="myName" class="bottomLeftCorner"></div>
     <button id="leaveGameButton">Leave game!</button>
     <script>
         $(document).ready(function() {
@@ -21,16 +21,7 @@
             getBoardInfo(); setInterval(getBoardInfo, 1000);
 
             $("#leaveGameButton").on('click', function() {
-                $.ajax({
-                    url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/leaveGame",
-                    data: {},
-                    success: function() {},
-                    error: function(xhr, status) {
-                        if( status !== null ) {
-                            console.log( "Greška prilikom Ajax poziva: " + status );
-                        }
-                    }
-                });
+                leaveGame();
             });
 
             $("body")
@@ -286,6 +277,22 @@
                             resetBoardColors(board); showValidMoves(positions, selectedPieceX, selectedPieceY);
                             $("#myName").html(myName);
                             $("#opponentName").html(opponentName);
+                            if(turn === 'white_won' && myColour === 'white') {
+                                alert("Congratulations! You won!")
+                                leaveGame();
+                            }
+                            else if(turn === 'white_won' && myColour === 'black') {
+                                alert("You lost, better luck next time!")
+                                leaveGame();
+                            }
+                            else if(turn === 'black_won' && myColour === 'black') {
+                                alert("Congratulations! You won!")
+                                leaveGame();
+                            }
+                            else if(turn === 'black_won' && myColour === 'white') {
+                                alert("You lost, better luck next time!")
+                                leaveGame();
+                            }
                         }
                         else {
                             window.location.replace("<?php echo __SITE_URL; ?>/index.php?rt=checkers/index");
@@ -293,6 +300,19 @@
                     },
                     error: function(status) {
                         console.log("Ajax error: getBoardInfo" + JSON.stringify(status));
+                    }
+                });
+            }
+
+            function leaveGame() {
+                $.ajax({
+                    url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/leaveGame",
+                    data: {},
+                    success: function() {},
+                    error: function(xhr, status) {
+                        if( status !== null ) {
+                            console.log( "Greška prilikom Ajax poziva: " + status );
+                        }
                     }
                 });
             }

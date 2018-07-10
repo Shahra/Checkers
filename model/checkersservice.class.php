@@ -3,6 +3,33 @@ session_start();
 
 class CheckersService {
 
+	public static function whoWon($board) {
+		$white = false; $black = false;
+		for($i = 0; $i < 8; $i++) {
+			for($j = 0; $j < 8; $j++) {
+				if($board[$i][$j] === 'A' || $board[$i][$j] === 'B') {
+					$white = true;
+				}
+				else if($board[$i][$j] === 'C' || $board[$i][$j] === 'D') {
+					$black = true;
+				}
+			}
+		}
+
+		if($white === true && $black === true) {
+			return false;
+		}
+
+		else if($white === true) {
+			return "white";
+		}
+
+		else {
+			return "black";
+		}
+
+	}
+
 	public static function getColour($c) {
 		if ($c === 'A' || $c === 'B') return "white";
 		else if ($c === 'C' || $c === 'D') return "black";
@@ -150,7 +177,7 @@ class CheckersService {
 			$st = $db->prepare("SELECT *
 													FROM   games
 													WHERE  (black_name = :username OR white_name = :username)
-															   AND status IN ('WHITE', 'BLACK');");
+															   AND status NOT IN ('PENDING_REQUEST');");
 			$st->execute(array('username' => $_SESSION['username']));
 		}
 
@@ -163,6 +190,14 @@ class CheckersService {
 		if($row === false) { return false; }
 
 		$boardInfo = [];
+
+		if($row['status'] === 'WHITE_WON') {
+			$boardInfo['turn'] = 'white_won';
+		}
+
+		else if($row['status'] === 'BLACK_WON') {
+			$boardInfo['turn'] = 'black_won';
+		}
 
 		if($row['status'] === 'WHITE') {
 			$boardInfo['turn'] = 'white';
@@ -214,6 +249,8 @@ class CheckersService {
 			$board[$i] = str_split($board[$i]);
 		}
 
+		$updatedBoard = '';
+
 		if($row['white_name'] === $_SESSION['username'] && $row['status'] === 'WHITE') {
 			$updatedBoard = CheckersService::boardAfterWhiteMove($board, $oldX, $oldY, $newX, $newY);
 			if($updatedBoard !== false) {
@@ -227,6 +264,16 @@ class CheckersService {
 				CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'WHITE');
 			}
 		}
+
+		if($updatedBoard !== false && CheckersService::whoWon($updatedBoard) !== false) {
+			if(CheckersService::whoWon($updatedBoard) === "white") {
+				CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'WHITE_WON');
+			}
+			else if(CheckersService::whoWon($updatedBoard) === "black") {
+				CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'BLACK_WON');
+			}
+		}
+		echo CheckersService::whoWon($updatedBoard);
 
 		return false;
 	}
