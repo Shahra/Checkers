@@ -29,8 +29,8 @@ catch(PDOException $e) {
 
 if( $has_tables ) {
 	$st = $db->prepare(
-		'DROP TABLE IF EXISTS USERS;' .
-		'DROP TABLE IF EXISTS GAMES;'
+		'DROP TABLE IF EXISTS users;' .
+		'DROP TABLE IF EXISTS games;'
 	);
 	echo 'Tablice users / games su vec postojale. Brisem tablice. <br />';
 	$st->execute();
