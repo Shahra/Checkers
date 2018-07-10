@@ -65,6 +65,11 @@ class CheckersController extends BaseController {
 		JSONService::sendJSONandExit('');
 	}
 
+	public function leaveGame() {
+		CheckersService::removeEveryGameAssociatedWithCurrentUser();
+		JSONService::sendJSONandExit('success');
+	}
+
 };
 
 ?>

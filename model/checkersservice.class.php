@@ -34,6 +34,8 @@ class CheckersService {
 			$st = $db->prepare("SELECT username
 													FROM   users
 													WHERE  online LIKE '1'
+																 AND username NOT IN (SELECT white_name FROM games) 
+																 AND username NOT in (select  black_name from games)
 																 AND username NOT LIKE :username");
 			$st->execute(array('username' => $_SESSION['username']));
 		}
@@ -180,6 +182,8 @@ class CheckersService {
 			$boardInfo['opponentName'] = $row['white_name'];
 		}
 
+		$boardInfo['myName'] = $_SESSION['username'];
+
 		$boardInfo['positions'] = $row['board'];
 
 		return $boardInfo;
@@ -212,12 +216,16 @@ class CheckersService {
 
 		if($row['white_name'] === $_SESSION['username'] && $row['status'] === 'WHITE') {
 			$updatedBoard = CheckersService::boardAfterWhiteMove($board, $oldX, $oldY, $newX, $newY);
-			CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'BLACK');
+			if($updatedBoard !== false) {
+				CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'BLACK');
+			}
 		}
 
 		else if($row['black_name'] === $_SESSION['username'] && $row['status'] === 'BLACK') {
 			$updatedBoard = CheckersService::boardAfterBlackMove($board, $oldX, $oldY, $newX, $newY);
-			CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'WHITE');
+			if($updatedBoard !== false) {
+				CheckersService::updateBoard(CheckersService::boardToString($updatedBoard), 'WHITE');
+			}
 		}
 
 		return false;
@@ -226,7 +234,7 @@ class CheckersService {
 	public static function boardAfterWhiteMove($positions, $oldX, $oldY, $newX, $newY) {
 
 		if (CheckersService::getColour($positions[$oldX][$oldY]) !== 'white') {
-			return $positions;
+			return false;
 		}
 
 		if ($newX === $oldX - 1 && $newY === $oldY - 1 && $positions[$newX][$newY] === 'E') {
@@ -304,13 +312,13 @@ class CheckersService {
 			}
 		}
 
-		return $positions;
+		return false;
 	}
 
 	public static function boardAfterBlackMove($positions, $oldX, $oldY, $newX, $newY) {
 
 		if (CheckersService::getColour($positions[$oldX][$oldY]) !== 'black') {
-			return $positions;
+			return false;
 		}
 
 		if($newX === $oldX + 1 && $newY === $oldY - 1 && $positions[$newX][$newY] === 'E') {
@@ -385,7 +393,7 @@ class CheckersService {
 			}
 		}
 
-		return $positions;
+		return false;
 	}
 
 	public static function updateBoard($board, $status) {
@@ -399,6 +407,22 @@ class CheckersService {
 			$st->execute(array('board' => $board,
 												 'status' => $status,
 												 'username' => $_SESSION['username']));
+		}
+
+		catch(PDOException $e) {
+			exit('PDO error ' . $e->getMessage());
+		}
+
+	}
+
+	public static function removeEveryGameAssociatedWithCurrentUser() {
+
+		try {
+			$db = DB::getConnection();
+			$st = $db->prepare("DELETE FROM games 
+													WHERE  white_name = :username
+																 OR black_name = :username;");
+			$st->execute(array('username' => $_SESSION['username']));
 		}
 
 		catch(PDOException $e) {

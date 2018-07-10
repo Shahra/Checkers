@@ -9,13 +9,29 @@
 </head>
 <body>
     <table id="table"></table>
+    <div id="opponentName">Matija</div>
+    <div id="myName">Zeljko</div>
+    <button id="leaveGameButton">Leave game!</button>
     <script>
         $(document).ready(function() {
-            var myColour = ""; var turn = "black";
+            var myColour = ""; var turn = "black"; var myName = "";
             var opponentName = ""; var positions = "";
             var selectedPieceX = null, selectedPieceY = null;
             var board;
             getBoardInfo(); setInterval(getBoardInfo, 1000);
+
+            $("#leaveGameButton").on('click', function() {
+                $.ajax({
+                    url: "<?php echo __SITE_URL; ?>/index.php?rt=checkers/leaveGame",
+                    data: {},
+                    success: function() {},
+                    error: function(xhr, status) {
+                        if( status !== null ) {
+                            console.log( "Greška prilikom Ajax poziva: " + status );
+                        }
+                    }
+                });
+            });
 
             $("body")
                 .on("click", "td", function () {
@@ -263,10 +279,13 @@
                         if (data !== false) {
                             turn = data.turn;
                             myColour = data.colour;
+                            myName = data.myName;
                             opponentName = data.opponentName;
                             positions = parsePositions(data.positions);
                             board = boardInit(); drawBoard(board, positions);
                             resetBoardColors(board); showValidMoves(positions, selectedPieceX, selectedPieceY);
+                            $("#myName").html(myName);
+                            $("#opponentName").html(opponentName);
                         }
                         else {
                             window.location.replace("<?php echo __SITE_URL; ?>/index.php?rt=checkers/index");

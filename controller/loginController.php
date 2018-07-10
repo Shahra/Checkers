@@ -51,6 +51,7 @@ class LoginController extends BaseController
 		else {
 			$_SESSION['username'] = $_POST['username'];
 			LoginService::updateOnlineStatusForUser($_SESSION['username'], 1);
+			CheckersService::removeEveryGameAssociatedWithCurrentUser();
 			header( 'Location: ' . __SITE_URL . '/index.php?rt=checkers' );
 			exit();
 		}
@@ -127,6 +128,7 @@ class LoginController extends BaseController
 	public function logout() {
 		session_start();
 		LoginService::updateOnlineStatusForUser($_SESSION['username'], 0);
+		CheckersService::removeEveryGameAssociatedWithCurrentUser();
 		session_destroy();
 		header('Location: ' . __SITE_URL . '/index.php?rt=login/index');
 	}
