@@ -62,7 +62,7 @@ try {
 
 	$st->execute(array('username' => 'zeljko', 'password' => password_hash('zeljko', PASSWORD_DEFAULT)));
 	$st->execute(array('username' => 'matija', 'password' => password_hash('matija', PASSWORD_DEFAULT)));
-	$st->execute(array('username' => 'ivan', 'password' => password_hash('ivan', PASSWORD_DEFAULT)));
+	$st->execute(array('username' => 'marija', 'password' => password_hash('marija', PASSWORD_DEFAULT)));
 	$st->execute(array('username' => 'stjepan', 'password' => password_hash('stjepan', PASSWORD_DEFAULT)));
 }
 catch(PDOException $e) { exit("PDO error [insert users]: " . $e->getMessage()); }

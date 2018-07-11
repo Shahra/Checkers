@@ -1,3 +1,14 @@
+<?php
+    if (!LoginService::loggedIn()) {
+        header('Location: ' . __SITE_URL . '/index.php?rt=login/index');
+        exit();
+    }
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
